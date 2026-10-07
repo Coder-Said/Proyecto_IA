@@ -18,8 +18,7 @@ Aplicación móvil impulsada por **Deep Learning** y **procesamiento digital de 
 * **Audio y DSP:** Python, Librosa, NumPy, SciPy
 * **Entrenamiento de Modelos:** TensorFlow / Keras (CNN)
 * **Optimización en el Borde:** TensorFlow Lite (Cuantización INT8/FP16)
-* **Desarrollo Móvil:** Flutter (Dart)
-* **Motor de Inferencia Móvil:** `tflite_flutter`
+* **Desarrollo Móvil:** Mockups en Figma y aplicación en Android Studio
 
 ---
 
