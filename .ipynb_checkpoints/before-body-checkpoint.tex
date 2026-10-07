@@ -1,0 +1,46 @@
+\begin{titlepage}
+\centering
+
+\vspace*{1cm}
+
+\includegraphics[width=0.28\textwidth]{epn.png}
+
+\vspace{1.5cm}
+
+{\Large\textbf{ESCUELA POLITÉCNICA NACIONAL}\par}
+
+$if(subtitle)$
+\vspace{0.5cm}
+{\large $subtitle$\par}
+$endif$
+
+\vfill
+
+$if(title)$
+{\LARGE\textbf{$title$}\par}
+$endif$
+
+\vspace{2cm}
+
+$for(by-author)$
+  {\large\textbf{$by-author.name.literal$}\par}
+  $if(by-author.affiliations)$
+    \vspace{0.2cm}
+    {\normalsize $for(by-author.affiliations)$$it.name$$sep$, $endfor$\par}
+  $endif$
+  $if(by-author.email)$
+    \vspace{0.2cm}
+    {\normalsize \texttt{$by-author.email$}\par}
+  $endif$
+  \vspace{0.5cm}
+$endfor$
+
+\vfill
+
+{\large Quito -- Ecuador\par}
+\vspace{0.3cm}
+{\large $if(date)$$date$$else$\today$endif$\par}
+
+\end{titlepage}
+
+\clearpage
