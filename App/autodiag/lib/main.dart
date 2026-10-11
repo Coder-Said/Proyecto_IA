@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'services/audio_service.dart';
+import 'services/model_service.dart';
 
 void main() {
   runApp(const AutoDiagApp());
 }
 
 class AutoDiagApp extends StatelessWidget {
-  const AutoDiagApp({Key? key}) : super(key: key);
+  const AutoDiagApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'AutoDiag AI',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.blue,
@@ -24,7 +27,7 @@ class AutoDiagApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF121212),
         cardColor: const Color(0xFF1E1E1E),
       ),
-      themeMode: ThemeMode.system, // Uses system theme
+      themeMode: ThemeMode.system,
       home: const MainScreen(),
     );
   }
@@ -34,10 +37,10 @@ class AutoDiagApp extends StatelessWidget {
 // MAIN NAVIGATION WRAPPER
 // -----------------------------------------------------------------
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
@@ -45,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Center(child: Text("Historial")), // Placeholder
+    const Center(child: Text("Historial de Diagnósticos")),
     const ProfileScreen(),
   ];
 
@@ -76,12 +79,10 @@ class _MainScreenState extends State<MainScreen> {
 // 1. HOME / MAIN MENU SCREEN
 // -----------------------------------------------------------------
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.all(24.0),
@@ -93,18 +94,18 @@ class HomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text("Inicio", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                  Text("Bienvenido a AutoDiag", style: TextStyle(color: Colors.grey)),
+                  Text("Bienvenido a AutoDiag AI", style: TextStyle(color: Colors.grey)),
                 ],
               ),
               const CircleAvatar(
-                backgroundColor: Colors.grey,
+                backgroundColor: Colors.blueAccent,
                 child: Icon(Icons.person, color: Colors.white),
               )
             ],
           ),
           const SizedBox(height: 24),
 
-          // Current Vehicle Card
+          // Tarjeta de Vehículo Actual
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -139,7 +140,7 @@ class HomeScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          // Main Action
+          // Botón Principal de Escaneo
           InkWell(
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const DiagnosticStartScreen()));
@@ -148,7 +149,7 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                border: Border.all(color: Colors.blueAccent.withOpacity(0.5), width: 2),
+                border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.5), width: 2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -163,7 +164,7 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       Text("Escanear Motor", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text("Realizar diagnóstico acústico", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text("Realizar diagnóstico acústico con IA", style: TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
                   )
                 ],
@@ -173,14 +174,18 @@ class HomeScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Grid Options
+          // Opciones
           Row(
             children: [
-              Expanded(child: _buildGridButton(context, Icons.build, "Talleres Cercanos", Colors.orange, () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const WorkshopsScreen()));
-              })),
+              Expanded(
+                child: _buildGridButton(context, Icons.build, "Talleres Cercanos", Colors.orange, () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const WorkshopsScreen()));
+                }),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _buildGridButton(context, Icons.help_outline, "Guía y Ayuda", Colors.green, () {})),
+              Expanded(
+                child: _buildGridButton(context, Icons.help_outline, "Guía y Ayuda", Colors.green, () {}),
+              ),
             ],
           )
         ],
@@ -196,13 +201,13 @@ class HomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Icon(icon, color: color),
             ),
             const SizedBox(height: 8),
@@ -218,7 +223,7 @@ class HomeScreen extends StatelessWidget {
 // 2. DIAGNOSTIC START SCREEN
 // -----------------------------------------------------------------
 class DiagnosticStartScreen extends StatelessWidget {
-  const DiagnosticStartScreen({Key? key}) : super(key: key);
+  const DiagnosticStartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -237,14 +242,17 @@ class DiagnosticStartScreen extends StatelessWidget {
               const Text("Listo para escanear", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               const Text(
-                "Acerque el dispositivo al motor encendido en un entorno lo más silencioso posible.",
+                "Acerque el micrófono del dispositivo al motor encendido en un entorno lo más silencioso posible.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 48),
               InkWell(
                 onTap: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ListeningScreen()));
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ListeningScreen()),
+                  );
                 },
                 child: Container(
                   width: 150,
@@ -258,7 +266,7 @@ class DiagnosticStartScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              const Text("Tocar para escanear", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Tocar para iniciar grabación (5s)", style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -268,55 +276,293 @@ class DiagnosticStartScreen extends StatelessWidget {
 }
 
 // -----------------------------------------------------------------
-// 3. LISTENING SCREEN (Simulated Analysis)
+// 3. LISTENING & RECORDING SCREEN (Grabación Real + Inferencia IA ONNX)
 // -----------------------------------------------------------------
+enum ScanState {
+  inicializando,
+  grabando,
+  analizando,
+  error,
+}
+
 class ListeningScreen extends StatefulWidget {
-  const ListeningScreen({Key? key}) : super(key: key);
+  const ListeningScreen({super.key});
 
   @override
-  _ListeningScreenState createState() => _ListeningScreenState();
+  State<ListeningScreen> createState() => _ListeningScreenState();
 }
 
 class _ListeningScreenState extends State<ListeningScreen> {
+  final AudioRecordingService _audioService = AudioRecordingService();
+  final OnnxModelService _onnxService = OnnxModelService();
+
+  ScanState _scanState = ScanState.inicializando;
+  int _secondsRemaining = 5;
+  String _errorMessage = "";
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    // Simulate audio processing delay
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ResultScreen()));
+    _iniciarProceso();
+  }
+
+  Future<void> _iniciarProceso() async {
+    setState(() {
+      _scanState = ScanState.inicializando;
+      _secondsRemaining = 5;
+      _errorMessage = "";
     });
+
+    try {
+      await _onnxService.initModels();
+
+      final path = await _audioService.startRecording();
+      if (path == null) {
+        if (mounted) {
+          setState(() {
+            _scanState = ScanState.error;
+            _errorMessage = "No se pudo acceder al micrófono. Por favor concede el permiso e intentalo de nuevo.";
+          });
+        }
+        return;
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        _scanState = ScanState.grabando;
+        _secondsRemaining = 5;
+      });
+
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+        if (_secondsRemaining > 1) {
+          if (mounted) {
+            setState(() {
+              _secondsRemaining--;
+            });
+          }
+        } else {
+          _timer?.cancel();
+          await _detenerYProcesar();
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _scanState = ScanState.error;
+          _errorMessage = "Error al iniciar el escaneo: $e";
+        });
+      }
+    }
+  }
+
+  Future<void> _detenerYProcesar() async {
+    if (mounted) {
+      setState(() {
+        _scanState = ScanState.analizando;
+      });
+    }
+
+    try {
+      final recordedPath = await _audioService.stopRecording();
+      final String pathAProcesar = recordedPath ?? '';
+
+      final DiagnosticResult result = await _onnxService.procesarAudioYDiagnosticar(pathAProcesar);
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ResultScreen(result: result)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _scanState = ScanState.error;
+          _errorMessage = "Error al analizar el audio: $e";
+        });
+      }
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text("Analizando acústica...", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
-            SizedBox(height: 16),
-            Text("Mantenga el dispositivo estable y no apague el motor", style: TextStyle(color: Colors.grey)),
-            SizedBox(height: 64),
-            CircularProgressIndicator(strokeWidth: 6),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _timer?.cancel();
+    _audioService.dispose();
+    _onnxService.dispose();
+    super.dispose();
   }
-}
-
-// -----------------------------------------------------------------
-// 4. RESULT SCREEN
-// -----------------------------------------------------------------
-class ResultScreen extends StatelessWidget {
-  const ResultScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Resultados", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: _buildStateContent(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStateContent() {
+    switch (_scanState) {
+      case ScanState.inicializando:
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            CircularProgressIndicator(strokeWidth: 5, color: Colors.blueAccent),
+            SizedBox(height: 28),
+            Text(
+              "Preparando micrófono e IA...",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Cargando componentes de captura...",
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        );
+
+      case ScanState.grabando:
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Grabando acústica del motor...",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Mantenga el teléfono cerca del motor encendido",
+              style: TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 150,
+                  height: 150,
+                  child: CircularProgressIndicator(
+                    value: (5 - _secondsRemaining) / 5.0,
+                    strokeWidth: 8,
+                    color: Colors.redAccent,
+                    backgroundColor: Colors.blueAccent.withValues(alpha: 0.2),
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "$_secondsRemaining",
+                      style: const TextStyle(fontSize: 52, fontWeight: FontWeight.bold, color: Colors.redAccent),
+                    ),
+                    const Text("segundos", style: TextStyle(color: Colors.grey, fontSize: 13)),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case ScanState.analizando:
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            CircularProgressIndicator(strokeWidth: 6, color: Colors.blueAccent),
+            SizedBox(height: 28),
+            Text(
+              "Analizando con IA ONNX...",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+            ),
+            SizedBox(height: 12),
+            Text(
+              "Procesando patrón de frecuencia y diagnóstico...",
+              style: TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        );
+
+      case ScanState.error:
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.redAccent, size: 64),
+            const SizedBox(height: 16),
+            const Text(
+              "Ocurrió un inconveniente",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _errorMessage,
+              style: const TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: _iniciarProceso,
+              icon: const Icon(Icons.refresh),
+              label: const Text("Reintentar Grabación"),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Regresar"),
+            ),
+          ],
+        );
+    }
+  }
+}
+
+// -----------------------------------------------------------------
+// 4. RESULT SCREEN (Muestra el diagnóstico real obtenido de la IA)
+// -----------------------------------------------------------------
+class ResultScreen extends StatelessWidget {
+  final DiagnosticResult result;
+
+  const ResultScreen({super.key, required this.result});
+
+  Color _getColor(String colorName) {
+    switch (colorName) {
+      case 'red':
+        return Colors.redAccent;
+      case 'orange':
+        return Colors.orange;
+      case 'green':
+      default:
+        return Colors.green;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final statusColor = _getColor(result.colorHex);
+    final int certezaPorcentaje = (result.certeza * 100).round();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Resultados IA", style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(color: Theme.of(context).textTheme.bodyLarge?.color),
@@ -324,92 +570,186 @@ class ResultScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          // Result Card
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.redAccent.withOpacity(0.5), width: 2),
+          if (result.isUnrecognized) ...[
+            // Vista especial para cuando está en silencio o el audio no tiene volumen
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.5), width: 2),
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.mic_off_rounded, size: 64, color: Colors.orange),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                    child: const Text("AUDIO NO RECONOCIDO", style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 11)),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    result.titulo,
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    result.descripcion,
+                    style: const TextStyle(color: Colors.grey, height: 1.4),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
-                  child: const Text("ANOMALÍA DETECTADA", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 10)),
-                ),
-                const SizedBox(height: 16),
-                const Text("Holgura en correa", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-                const Text(
-                  "Se detectó un patrón acústico irregular en altas frecuencias comúnmente asociado al desgaste o falta de tensión en las correas.",
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Certeza del modelo AI", style: TextStyle(fontWeight: FontWeight.bold)),
-                    const Text("87%", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(value: 0.87, color: Colors.red, backgroundColor: Colors.grey[300], minHeight: 8),
-              ],
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.lightbulb_outline, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Text("Sugerencia", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    result.recomendacion,
+                    style: const TextStyle(color: Colors.orange, height: 1.3),
+                  ),
+                ],
+              ),
             ),
-          ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.refresh),
+              label: const Text("Reintentar Escaneo"),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ] else ...[
+            // Vista normal cuando la IA predice un diagnóstico válido
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: statusColor.withValues(alpha: 0.5), width: 2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                    child: Text(
+                      result.categoria,
+                      style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 11),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    result.titulo,
+                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    result.descripcion,
+                    style: const TextStyle(color: Colors.grey, height: 1.4),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Certeza del modelo AI", style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        "$certezaPorcentaje%",
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: statusColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: result.certeza,
+                    color: statusColor,
+                    backgroundColor: Colors.grey[300],
+                    minHeight: 8,
+                  ),
+                ],
+              ),
+            ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Recommendation
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+            // Recomendación
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded, color: statusColor),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Recomendación",
+                        style: TextStyle(fontWeight: FontWeight.bold, color: statusColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    result.recomendacion,
+                    style: TextStyle(color: statusColor, height: 1.3),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Text("Recomendación", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const Text("Se sugiere revisión visual de la banda de accesorios y posible reemplazo para evitar ruptura mientras conduce.", style: TextStyle(color: Colors.orange)),
-              ],
-            ),
-          ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // Schedule Action
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ScheduleScreen()));
-            },
-            icon: const Icon(Icons.build),
-            label: const Text("Agendar Revisión Mecánica"),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            // Acciones
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ScheduleScreen(diagnosticTitle: result.titulo)),
+                );
+              },
+              icon: const Icon(Icons.build),
+              label: const Text("Agendar Revisión Mecánica"),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Escanear nuevamente"),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            ),
-          )
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              ),
+              child: const Text("Escanear nuevamente"),
+            )
+          ]
         ],
       ),
     );
@@ -420,7 +760,7 @@ class ResultScreen extends StatelessWidget {
 // 5. PROFILE SCREEN
 // -----------------------------------------------------------------
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -442,15 +782,19 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _buildTextField("Kilometraje (Opcional)", "65000", suffix: "km"),
+          _buildTextField("Kilometraje", "65000", suffix: "km"),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: () {},
-            child: const Text("Guardar Perfil"),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Perfil actualizado correctamente.")),
+              );
+            },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             ),
+            child: const Text("Guardar Perfil"),
           ),
         ],
       ),
@@ -479,7 +823,7 @@ class ProfileScreen extends StatelessWidget {
 // 6. WORKSHOPS SCREEN
 // -----------------------------------------------------------------
 class WorkshopsScreen extends StatelessWidget {
-  const WorkshopsScreen({Key? key}) : super(key: key);
+  const WorkshopsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -493,7 +837,7 @@ class WorkshopsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          const Text("Estimaciones basadas en diagnóstico de Holgura en correa.", style: TextStyle(color: Colors.grey)),
+          const Text("Talleres recomendados en tu zona para revisión preventiva.", style: TextStyle(color: Colors.grey)),
           const SizedBox(height: 24),
           _buildWorkshopCard(context, "Mecánica Los Andes", "4.8", "1.2 km", "\$35.00 - \$50.00", "Mejor Precio"),
           _buildWorkshopCard(context, "Taller Automotriz Express", "4.5", "0.5 km", "\$45.00 - \$60.00", "Más Cercano"),
@@ -510,7 +854,7 @@ class WorkshopsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,7 +863,7 @@ class WorkshopsScreen extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
               child: Text(badge, style: const TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
             ),
           Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -547,12 +891,15 @@ class WorkshopsScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ScheduleScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ScheduleScreen(diagnosticTitle: "Revisión Preventiva")),
+                  );
                 },
-                child: const Text("Agendar"),
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
+                child: const Text("Agendar"),
               )
             ],
           )
@@ -566,7 +913,9 @@ class WorkshopsScreen extends StatelessWidget {
 // 7. SCHEDULE SCREEN
 // -----------------------------------------------------------------
 class ScheduleScreen extends StatelessWidget {
-  const ScheduleScreen({Key? key}) : super(key: key);
+  final String diagnosticTitle;
+
+  const ScheduleScreen({super.key, this.diagnosticTitle = "Revisión Preventiva"});
 
   @override
   Widget build(BuildContext context) {
@@ -580,13 +929,12 @@ class ScheduleScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          // Technical Sheet
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.05),
+              color: Colors.grey.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey.withOpacity(0.3), style: BorderStyle.solid),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -597,7 +945,7 @@ class ScheduleScreen extends StatelessWidget {
                     const Text("Ficha Técnica", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.blueAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: Colors.blueAccent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                       child: const Text("#AD-84920", style: TextStyle(color: Colors.blueAccent, fontSize: 10, fontWeight: FontWeight.bold)),
                     )
                   ],
@@ -607,14 +955,11 @@ class ScheduleScreen extends StatelessWidget {
                 _buildTechRow("Motor", "1.8L Gasolina"),
                 _buildTechRow("Kilometraje", "65,000 km"),
                 const Divider(height: 24),
-                _buildTechRow("Falla Detectada", "Holgura en correa", isAlert: true),
-                _buildTechRow("Certeza AI", "87%"),
+                _buildTechRow("Falla Detectada", diagnosticTitle, isAlert: true),
               ],
             ),
           ),
-          
           const SizedBox(height: 24),
-          
           const Text("Taller Seleccionado", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
           const SizedBox(height: 8),
           Container(
@@ -622,7 +967,7 @@ class ScheduleScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -632,39 +977,20 @@ class ScheduleScreen extends StatelessWidget {
               ],
             ),
           ),
-          
           const SizedBox(height: 24),
-          
-          const Text("Fecha y Hora (Simulado)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.grey.withOpacity(0.2)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text("10 Oct 2026 - 10:00 AM"),
-                Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 32),
-          
           ElevatedButton(
             onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Cita agendada correctamente.")),
+              );
               Navigator.popUntil(context, (route) => route.isFirst);
             },
-            child: const Text("Confirmar Cita"),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
               textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            child: const Text("Confirmar Cita"),
           )
         ],
       ),
