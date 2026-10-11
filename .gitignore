@@ -1,0 +1,9 @@
+# Flutter / Android Studio
+build/
+.dart_tool/
+
+# Modelos y datasets de Machine Learning
+*.h5
+*.tflite
+dataset/
+*.wav
