@@ -4,7 +4,7 @@ Aplicación móvil impulsada por **Deep Learning** y **procesamiento digital de 
 
 ---
 
-## 🚀 Características
+##  Características
 
 * **Análisis de audio en tiempo real:** Captura el sonido del motor y genera espectrogramas de Mel para su evaluación.
 * **Diagnóstico local (*Offline*):** Inferencia en el borde utilizando TensorFlow Lite sin requerir datos móviles o Wi-Fi.
@@ -13,7 +13,7 @@ Aplicación móvil impulsada por **Deep Learning** y **procesamiento digital de 
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 * **Audio y DSP:** Python, Librosa, NumPy, SciPy
 * **Entrenamiento de Modelos:** TensorFlow / Keras (CNN)
@@ -22,7 +22,7 @@ Aplicación móvil impulsada por **Deep Learning** y **procesamiento digital de 
 
 ---
 
-## 👥 Desarrolladores
+##  Desarrolladores
 
 Proyecto desarrollado por:
 
@@ -32,6 +32,6 @@ Proyecto desarrollado por:
 
 ---
 
-## 📄 Licencia
+##  Licencia
 
 Proyecto desarrollado con fines estrictamente académicos y de investigación. Todos los derechos reservados © 2026. Para más detalles sobre las restricciones de uso y distribución, consulta el archivo [LICENSE](LICENSE).
